@@ -15,3 +15,4 @@
 ->**Documentatiion**: Provide clear documentation of the data model, architecture and ready-to-use data product  <br>
 ->**Final result**: Provide all the required materials for the warehouse such as initialization and DDL scripts, python scripts, ETL scripts,  documentation, visualization (e.g., diagrams, models, schemas), datasets used
 
+ 
