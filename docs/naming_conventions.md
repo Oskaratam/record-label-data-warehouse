@@ -1,5 +1,5 @@
 
-**File purpose**: Clearly define all the naming conventions for objects in the project 
+**File purpose**: Clearly define all the naming conventions for objects in the project  
 
 **Objects**: file names, database tables/views/columns/procedures/triggers, docs
 --------
@@ -11,24 +11,24 @@
 ***Language*** - English
 
 ***Script names*** - `<Abbreviated layer name>_<script purpose>.<extension>`  
-'Abbreviated layer name' reprsents shortened name of the data processing stage where the script is applied (e.g., bronze - brz, silver - slv, gold - gd)  
-Examples: brz_load_json.py, gd_ddl.sql
+  - 'Abbreviated layer name' reprsents shortened name of the data processing stage where the script is applied (e.g., bronze - brz, silver - slv, gold gd)  
+  - Examples: brz_load_json.py, gd_ddl.sql
 
 ***Data quality test script names*** - `test_<layer name>_<aspect>`  
-All test have to start with the prefix `test_` and be followed by layer name and then the tested aspect  
-Example: test_silver_duplicates, test_gold_nulls
+  - All test have to start with the prefix `test_` and be followed by layer name and then the tested aspect  
+  - Example: test_silver_duplicates, test_gold_nulls
 
 ## Docs Conventions ##
 
 ***Visualization based docs*** - `<order>_<artifact_type>_<description>.<extension>`  
-Order - level of abstraction (01 beeing the highest)  
-Examples - 01_architecture_layers.drawio, 03_model_star_schema.png, 02_architecture_data_flow.drawio  
+  - Order - level of abstraction (01 beeing the highest)  
+  - Examples - 01_architecture_layers.drawio, 03_model_star_schema.png, 02_architecture_data_flow.drawio  
 
 ***Text based docs*** - `<descriptive name using the general naming style>.<extension>`  
-Examples: model_evaluation.md, data_dictionary.md
+  - Examples: model_evaluation.md, data_dictionary.md
 
 ***Standard Top-Level Files*** - `<descriptive name all caps>.<extension>`  
-Examples: README.md, CONTRIBUTING.md, CHANGELOG.md
+  - Examples: README.md, CONTRIBUTING.md, CHANGELOG.md
 
 ## Layer's Naming Conventions ##
 
@@ -55,9 +55,9 @@ All names must use meaningful, business-aligned names for tables, starting with 
     `fact_genre_performance` → Fact table containing genre performance by months.  
 
 
-    ## Column Naming Conventions
+## Column Naming Conventions
 
-    ### **Technical Columns**  
+### **Technical Columns**   
 All technical columns must start with the prefix `meta_`, followed by a descriptive name indicating the column's purpose.  
 **`meta_<column_name>`**   
   - `meta`: Prefix exclusively for system-generated metadata.  
