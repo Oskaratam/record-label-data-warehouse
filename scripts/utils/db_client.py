@@ -1,6 +1,6 @@
 import os 
 import pyodbc
-import db_config
+import scripts.utils.db_config as db_config
 from dotenv import load_dotenv
 
 class DatabaseClient:
@@ -45,7 +45,7 @@ class DatabaseClient:
             print(f"Database error: {e}")
         finally:
             connection.close()
-            return watermark
+            return watermark[0]
         
 
     def _load_json(watermark=None):
@@ -69,6 +69,10 @@ class DatabaseClient:
             print('!!!!!!!!!!!!!!!!!')
             print(f'Connection to the database failed \n Error Message: {e}')
 
+if __name__ == "__main__":
+    database = DatabaseClient()
+    watermark = database.get_watermark_value('SAP_ERP')
+    print(type(watermark[0]))
 
 
 
