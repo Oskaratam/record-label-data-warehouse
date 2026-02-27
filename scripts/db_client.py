@@ -1,20 +1,21 @@
 import os 
 import pyodbc
+import db_config
 from dotenv import load_dotenv
 
-class DatabaseManager:
+class DatabaseClient:
     def __init__(self):
         load_dotenv('.env')
         self.SERVER_NAME = os.getenv('SERVER_NAME')
         self.DATABASE_NAME = os.getenv('DATABASE_NAME')
         self.UID = os.getenv('UID')
         self.PASSWORD = os.getenv('PASSWORD')
+        self.TABLES = db_config.TABLES
+
     
     def load_to_db(self, raw_data, source_system, source_url=None):
-        connection = self.__connect_to_db()
+        connection = self._connect_to_db()
         cursor = connection.cursor()
-        watermark = self._get_watermark_value
-        
 
 
         print('Loaded to db')
@@ -25,14 +26,32 @@ class DatabaseManager:
         print()
         
 
-    def _get_watermark_value(connection, source_system):
-        print()
+    def get_watermark_value(self, source_system) -> str:
+        connection : pyodbc.Connection = self._connect_to_db()
+        cursor = connection.cursor()
+        watermark = None
+        control_table = self.TABLES["bronze_control_table"]
+        try:
+            watermark = cursor.execute(
+                f"""
+                SELECT TOP 1 {control_table['columns']['watermark']}
+                FROM {control_table['name']}
+                WHERE source_system = ? AND {control_table['columns']['status']} = 'COMPLETED'
+                ORDER BY {control_table['columns']['end']} DESC
+                """, 
+                source_system
+                ).fetchone()
+        except pyodbc.Error as e:
+            print(f"Database error: {e}")
+        finally:
+            connection.close()
+            return watermark
         
 
-    def load_json(watermark=None):
+    def _load_json(watermark=None):
         print()
 
-    def load_html(watermark=None):
+    def _load_html(watermark=None):
         print()
 
     def  _connect_to_db(self) -> pyodbc.Connection:
@@ -51,7 +70,8 @@ class DatabaseManager:
             print(f'Connection to the database failed \n Error Message: {e}')
 
 
-
+client = DatabaseClient()
+print(client.get_watermark_value("SAP_ERP"))
 
 
 
