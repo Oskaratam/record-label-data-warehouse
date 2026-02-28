@@ -4,6 +4,7 @@ import scripts.utils.db_config as db_config
 from dotenv import load_dotenv
 
 class DatabaseClient:
+
     def __init__(self):
         load_dotenv('.env')
         self.SERVER_NAME = os.getenv('SERVER_NAME')
@@ -26,10 +27,10 @@ class DatabaseClient:
         print()
         
 
-    def get_watermark_value(self, source_system) -> str:
+    def get_watermark_value(self, source_system: str) -> str:
         connection : pyodbc.Connection = self._connect_to_db()
         cursor = connection.cursor()
-        watermark = None
+        watermark = ""
         control_table = self.TABLES["bronze_control_table"]
         try:
             watermark = cursor.execute(
@@ -45,16 +46,16 @@ class DatabaseClient:
             print(f"Database error: {e}")
         finally:
             connection.close()
-            return watermark[0]
+            return str(watermark[0]) if isinstance(watermark, pyodbc.Row) and len(watermark) > 0 else ""
         
 
-    def _load_json(watermark=None):
+    def _load_json(self, watermark=""):
         print()
 
-    def _load_html(watermark=None):
+    def _load_html(self, watermark=""):
         print()
 
-    def  _connect_to_db(self) -> pyodbc.Connection:
+    def  _connect_to_db(self) -> pyodbc.Connection: # type: ignore
         try:
             connection = pyodbc.connect(
                 f'DRIVER={{ODBC Driver 18 for SQL Server}};'
@@ -72,7 +73,8 @@ class DatabaseClient:
 if __name__ == "__main__":
     database = DatabaseClient()
     watermark = database.get_watermark_value('SAP_ERP')
-    print(type(watermark[0]))
+    print(watermark)
+    
 
 
 
