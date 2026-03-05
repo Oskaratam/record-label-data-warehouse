@@ -104,7 +104,6 @@ GO
 CREATE TABLE bronze.kworb_chart_worldwide (
 	page_key INT IDENTITY(1, 1) PRIMARY KEY,
 	raw_content NVARCHAR (MAX), -- Raw scraped html,
-	meta_source_url NVARCHAR(255),
 	meta_ingested_at DATETIME2 DEFAULT SYSUTCDATETIME(),
 	meta_source_system NVARCHAR(255),
 	meta_is_proccessed BIT DEFAULT 0 
@@ -116,7 +115,6 @@ GO
 CREATE TABLE bronze.kworb_chart_worldwide (
 	page_key INT IDENTITY(1, 1) PRIMARY KEY,
 	raw_content NVARCHAR (MAX), -- Raw scraped html,
-	meta_source_url NVARCHAR(255),
 	meta_ingested_at DATETIME2 DEFAULT SYSUTCDATETIME(),
 	meta_source_system NVARCHAR(255),
 	meta_is_proccessed BIT DEFAULT 0 

@@ -7,19 +7,19 @@ from scripts.utils.etl_config import API_TRIAL_THRESHOLD
 
 class BaseEtl():
 
-    def __init__(self, source_system: str, db_client: DatabaseClient | None = None):
+    def __init__(self, source_system: str, data_category: str, db_client: DatabaseClient | None = None):
         self.database = db_client or DatabaseClient()
         self._load_tries_count = 0
         self.source_system = source_system
+        self.data_category = data_category
 
     def run(self):
         watermark_value = self.database.get_watermark_value(self.source_system)
-        while(self._load_tries_count < API_TRIAL_THRESHOLD):
+        raw_data = [{}]
+        while(self._load_tries_count < API_TRIAL_THRESHOLD ):
             try:
-                raw_data = json.dumps(self._get_data(watermark_value))
-                self.database.load_to_db(raw_data, self.source_system)
-                print('Data loaded successfully')
-                return
+                raw_data = self._get_data(watermark_value)
+                break
             except (ConnectionError, TimeoutError, KeyError, requests.HTTPError, Exception) as error:
                 print(f'Error occured while loading: {error}')
                 self._load_tries_count += 1
@@ -30,6 +30,8 @@ class BaseEtl():
                 else:
                     print(f'Error occured while loading: {error}')
                     print('Number of trials exceeded the allowed threshold')
+                    return
+        self.database.load_to_bronze(raw_data, self.source_system, self.data_category) 
 
     @classmethod
     def is_valid_date(cls, string: str | None) -> bool:

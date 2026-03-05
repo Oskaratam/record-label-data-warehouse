@@ -11,8 +11,10 @@ from scripts.utils.etl_config import (YOUTUBE_API_PLAYLIST_SEARCH_PHRASES,
 load_dotenv('../../.env')
 
 class YoutubeVideosEtl(BaseEtl):
-    def __init__(self, source_system: str = 'youtube_api',  db_client: DatabaseClient | None = None):
-        super().__init__(source_system, db_client)
+    def __init__(self, source_system: str = 'youtube_api',
+                data_category: str = 'youtube_videos',
+                db_client: DatabaseClient | None = None):
+        super().__init__(source_system, data_category, db_client)
         self.API_KEY = os.getenv("YOUTUBE_API_KEY")
     
     def _get_data(self,  watermark: str):

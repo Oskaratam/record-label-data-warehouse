@@ -1,6 +1,8 @@
 import os 
 import pyodbc
+import json 
 import scripts.utils.db_config as db_config
+import scripts.utils.etl_config as etl_config
 from dotenv import load_dotenv
 
 class DatabaseClient:
@@ -14,13 +16,28 @@ class DatabaseClient:
         self.TABLES = db_config.TABLES
 
     
-    def load_to_db(self, raw_data : str, source_system : str):
+    def load_to_bronze(self, raw_data : list[dict], source_system : str, data_category : str):
         connection = self._connect_to_db()
-        cursor = connection.cursor()
+        target_table = etl_config.category_to_table_name_map[data_category]
+        try:
+            if not isinstance(raw_data, list):
+                raw_data = [raw_data]
+            
+            params = [(json.dumps(record), source_system) for record in raw_data]
+            with connection.cursor() as cursor:
+                query = f"""
+                INSERT INTO {target_table} (raw_content, meta_source_system) 
+                VALUES (?, ?)
+                """
+                cursor.fast_executemany = True  
+                cursor.executemany(query, params)
+                print(f'Loaded {len(raw_data)} rows into table "{target_table}"')
+        except pyodbc.Error as e:
+            print(f"Database ERROR during loading to bronze: {e}")
+            connection.rollback()
+        finally:
+            connection.close()
 
-
-        print('Loaded to db')
-        connection.close()
 
 
     def load_to_control_table(self, error_message):
@@ -29,21 +46,21 @@ class DatabaseClient:
 
     def get_watermark_value(self, source_system: str) -> str:
         connection : pyodbc.Connection = self._connect_to_db()
-        cursor = connection.cursor()
         watermark = ""
         control_table = self.TABLES["bronze_control_table"]
         try:
-            watermark = cursor.execute(
-                f"""
-                SELECT TOP 1 {control_table['columns']['watermark']}
-                FROM {control_table['name']}
-                WHERE source_system = ? AND {control_table['columns']['status']} = 'COMPLETED'
-                ORDER BY {control_table['columns']['end']} DESC
-                """, 
-                source_system
-                ).fetchone()
+            with connection.cursor() as cursor:
+                watermark = cursor.execute(
+                    f"""
+                    SELECT TOP 1 {control_table['columns']['watermark']}
+                    FROM {control_table['name']}
+                    WHERE source_system = ? AND {control_table['columns']['status']} = 'COMPLETED'
+                    ORDER BY {control_table['columns']['end']} DESC
+                    """, 
+                    source_system
+                    ).fetchone()
         except pyodbc.Error as e:
-            print(f"Database error: {e}")
+            print(f"Database ERROR during watermark retrieval: {e}")
         finally:
             connection.close()
             return str(watermark[0]) if isinstance(watermark, pyodbc.Row) and len(watermark) > 0 else ""
