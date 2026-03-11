@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 import requests
 from datetime import datetime
+from scripts.utils.decorators import with_metadata
 from scripts.utils.base_etl import BaseEtl 
 from scripts.utils.db_client import DatabaseClient
 from scripts.utils.etl_config import (YOUTUBE_API_PLAYLIST_SEARCH_PHRASES,
@@ -17,9 +18,12 @@ class YoutubeVideosEtl(BaseEtl):
         super().__init__(source_system, data_category, db_client)
         self.API_KEY = os.getenv("YOUTUBE_API_KEY")
     
+    @with_metadata
     def _get_data(self,  watermark: str):
         playlist_videos = self._get_playlist_items(self._get_relevant_playlists(), watermark)
-        return self._get_video_details(playlist_videos)
+        video_details = self._get_video_details(playlist_videos)
+        freshest_date = sorted(video_details, key = lambda x: x.get('snippet', {}).get('publishedAt', ""))[-1]['snippet']['publishedAt']
+        return {"raw_data" : video_details, "new_watermark": freshest_date}
           
     def _get_relevant_playlists(self) -> list[str]:
         playlist_parameters = {
@@ -31,6 +35,7 @@ class YoutubeVideosEtl(BaseEtl):
             "key" : self.API_KEY 
         }
         response = requests.get(YOUTUBE_SEARCH_URL, playlist_parameters)
+        response.raise_for_status()
         playlist_ids = [item["id"]["playlistId"] for item in response.json()['items']]
         print("!Playlists Loaded Successfully!")
         print("--------------------------------")
@@ -46,10 +51,7 @@ class YoutubeVideosEtl(BaseEtl):
             "key" : self.API_KEY 
         }
 
-        is_valid_watermark = BaseEtl.is_valid_date(watermark)
-        watermark_dt: datetime | None = datetime.fromisoformat(watermark) if is_valid_watermark else None
-
-        if(not self.is_valid_date(watermark)):
+        if(not BaseEtl.is_valid_date(watermark)):
            print("!!!!!!!!!!!!!!WARNING!!!!!!!!!!!!!!!!!!")
            print("Loading videos without watermark value")
            print()
@@ -57,6 +59,7 @@ class YoutubeVideosEtl(BaseEtl):
         for id in playlist_ids:
                 playlist_items_parameters["playlistId"] = id
                 response = requests.get(YOUTUBE_PLAYLIST_ITEMS_URL, playlist_items_parameters)
+                response.raise_for_status()
                 if(self.is_valid_date(watermark)):
                     watermark_datetime = datetime.fromisoformat(watermark)
                     videos.extend(video["snippet"]["resourceId"]["videoId"] for video in response.json()["items"]
@@ -83,6 +86,7 @@ class YoutubeVideosEtl(BaseEtl):
             batch_ids = video_ids[i:i+50]
             video_details_params["id"] = ','.join(batch_ids)
             response = requests.get(YOUTUBE_VIDEO_DETAILS_URL, video_details_params)
+            response.raise_for_status()
             video_details.extend(response.json()['items'])
         print("!Video Details Loaded Successfully!")
         print("--------------------------------")
@@ -91,5 +95,5 @@ class YoutubeVideosEtl(BaseEtl):
 
 if __name__ == '__main__':
     etl = YoutubeVideosEtl()
-    etl.run()
+    print(etl._get_data("")["metadata"])
     

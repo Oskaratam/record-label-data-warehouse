@@ -40,8 +40,11 @@ class DatabaseClient:
 
 
 
-    def load_to_control_table(self, error_message):
-        print()
+    def load_to_control_table(self, data):
+        metadata = data["metadata"]
+        # if()
+        # print()
+
         
 
     def get_watermark_value(self, source_system: str) -> str:
@@ -54,7 +57,7 @@ class DatabaseClient:
                     f"""
                     SELECT TOP 1 {control_table['columns']['watermark']}
                     FROM {control_table['name']}
-                    WHERE source_system = ? AND {control_table['columns']['status']} = 'COMPLETED'
+                    WHERE source_system = ? AND {control_table['columns']['status']} = 'Success'
                     ORDER BY {control_table['columns']['end']} DESC
                     """, 
                     source_system

@@ -43,15 +43,15 @@ Example: `ref_country_codes`
 ### Bronze Layer ###
 All names must start with the source system name, and table names must clearly represent the entity  
 - **`<sourcesystem>_<entity>`**  
-  - `<sourcesystem>`: Name of the source system (e.g., `spotify`, `youtube`).    
-  Example: `spotify_tracks_historical` → Historical information about tracks from the Spotify source
+  - `<sourcesystem>`: Name of the source system (e.g., `spotify_csv`, `youtube_api`).    
+  Example: `spotify_csv_tracks_historical` → Historical information about tracks from the Spotify source
 
 ### **Silver Rules**  
 All names must start with the source system name, and table names must match their original names in bronze level without renaming   
 - **`<sourcesystem>_<entity>`**  
-    - `<sourcesystem>`: Name of the source system (e.g., `spotify`, `youtube`).  
+    - `<sourcesystem>`: Name of the source system.  
     - `<entity>`: Exact table name from the bronze level.   
-    Example: `youtube_music_playlist_info` → Information about youtube music playlists  
+    Example: `youtube_api_music_playlist_info` → Information about youtube music playlists  
 
   ### **Gold Rules**  
 All names must use meaningful, business-aligned names for tables, starting with the category prefix.  
