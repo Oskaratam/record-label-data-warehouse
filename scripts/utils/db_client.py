@@ -16,7 +16,8 @@ class DatabaseClient:
         self.TABLES = db_config.TABLES
 
     
-    def load_to_bronze(self, raw_data : list[dict], source_system : str, data_category : str):
+    def load_to_bronze(self, raw_data : list[dict],
+                        source_system : str, data_category : str):
         connection = self._connect_to_db()
         target_table = etl_config.category_to_table_name_map[data_category]
         try:
@@ -40,11 +41,27 @@ class DatabaseClient:
 
 
 
-    def load_to_control_table(self, data):
-        metadata = data["metadata"]
-        # if()
-        # print()
-
+    def load_to_control_table(self, metadata: dict, data_category: str):
+        target_table = etl_config.category_to_table_name_map[data_category]
+        metadata['target_table'] = target_table
+        connection: pyodbc.Connection = self._connect_to_db()
+        try:
+            with connection.cursor() as cursor:
+                control_table = self.TABLES['bronze_control_table']
+                cursor.execute(f"""
+                                INSERT INTO {control_table['name']}
+                                ({', '.join(control_table['columns'].values())})
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            """, list(metadata.values()))
+            print('^^^^^^^^^^^^^^^')
+            print('Logged to the control table')
+            print('^^^^^^^^^^^^^^^')
+        except Exception as e:
+            print('!!!!!!!!!!!!!!!!!')
+            print(f"Error while loading to control table: {e}" )
+            connection.rollback()
+        finally:
+            connection.close()
         
 
     def get_watermark_value(self, source_system: str) -> str:
@@ -63,6 +80,7 @@ class DatabaseClient:
                     source_system
                     ).fetchone()
         except pyodbc.Error as e:
+            print('!!!!!!!!!!!!!!!!!')
             print(f"Database ERROR during watermark retrieval: {e}")
         finally:
             connection.close()

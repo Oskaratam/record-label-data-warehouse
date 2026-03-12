@@ -1,9 +1,9 @@
 
 # YOUTUBE CONFIG INFO #
 
-API_TRIAL_THRESHOLD = 3
+API_TRIAL_THRESHOLD = 2
 YOUTUBE_API_PLAYLIST_SEARCH_PHRASES = ["world hits of 2026"]
-YOUTUBE_SEARCH_URL = "https://www.googleapis.com/youtube/v3/sear"
+YOUTUBE_SEARCH_URL = "https://www.googleapis.com/youtube/v3/search"
 YOUTUBE_PLAYLIST_ITEMS_URL = "https://www.googleapis.com/youtube/v3/playlistItems"
 YOUTUBE_VIDEO_DETAILS_URL = "https://www.googleapis.com/youtube/v3/videos"
 
