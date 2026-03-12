@@ -31,7 +31,7 @@ def with_metadata(get_data_func):
             metadata.update({
                 'execution_time' : time.perf_counter() - timer_start,
                 'end_time' : datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                'error_message' : e
+                'error_message' : str(e)
             })
             return {
                     "raw_data": [],

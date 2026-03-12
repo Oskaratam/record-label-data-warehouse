@@ -14,15 +14,13 @@ GO
 CREATE TABLE bronze.ctrl_load (
 	load_key BIGINT IDENTITY(1, 1) PRIMARY KEY,
 	source_system NVARCHAR(255),
-	source_type NVARCHAR(50), -- Example - 'API', 'CSV', 'SCAPING'
 	load_status NVARCHAR(50),
 	target_table_name NVARCHAR(128),
 	loaded_rows INT,
-	hash_value NVARCHAR(128),
 	watermark_value NVARCHAR(128),
 	start_time DATETIME2,
 	finish_time DATETIME2,
-	load_time_milliseconds AS (DATEDIFF(millisecond, start_time, finish_time)) PERSISTED,
+	load_time_seconds FLOAT,
 	error_message NVARCHAR(1000) NULL
 )
 

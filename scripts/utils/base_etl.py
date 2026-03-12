@@ -19,21 +19,29 @@ class BaseEtl():
         watermark_value = self.database.get_watermark_value(self.source_system)
         data = {}
         while(self._load_tries_count < API_TRIAL_THRESHOLD ):
+
             data : dict = self._get_data(watermark_value)
 
-    
+            if(not data.get('metadata')):
+                print("!!!!!!WARNING!!!!!!")
+                print("Loading to bronze without logging to control table")
+                self.database.load_to_bronze(data["raw_data"], self.source_system, self.data_category) 
+                return
+
             if(data['metadata']['status'] == "Success"):
                 self.database.load_to_bronze(data["raw_data"], self.source_system, self.data_category) 
-                self.database.load_to_control_table(data["metadata"])
+                self.database.load_to_control_table(data["metadata"], self.data_category)
                 return 
             else:
+                print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
                 print(f'Error occured while loading: {data['metadata']['error_message']}')
                 self._load_tries_count += 1
-                self.database.load_to_control_table(data['metadata'])
+                self.database.load_to_control_table(data['metadata'], self.data_category)
                 if(self._load_tries_count < API_TRIAL_THRESHOLD):
                     print(f'Retrying the Load..... [{self._load_tries_count} / {API_TRIAL_THRESHOLD}]')
                     time.sleep(4)
                 else:
+                    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
                     print(f'Error occured while loading: {data['metadata']['error_message']}')
                     print('Number of trials exceeded the allowed threshold')
                     return

@@ -95,5 +95,5 @@ class YoutubeVideosEtl(BaseEtl):
 
 if __name__ == '__main__':
     etl = YoutubeVideosEtl()
-    print(etl._get_data("")["metadata"])
+    etl.run()
     
