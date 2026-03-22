@@ -7,20 +7,30 @@ class KworbScraper(BaseEtl):
 
     def __init__(self):
         pass
+
+    def _get_data(self, watermark: str) -> dict:
+        return self.scrape_worldwide_chart()
         
     @classmethod
-    def get_html(cls, url):
+    def get_html(cls, url) -> bytes:
         response = requests.get(url)
         if response.status_code == 200:
             return response.content
+        else:
+            return response.content
 
-    def scrape_worldwide_chart(self):
-        html_content = KworbScraper.get_html(KWORB_WORLDWIDE_CHART_URL)
-        soup = BeautifulSoup(html_content, 'html.parser') # type: ignore
+    def scrape_worldwide_chart(self) -> dict :
+        html_content : bytes = KworbScraper.get_html(KWORB_WORLDWIDE_CHART_URL)
+        soup = BeautifulSoup(html_content, 'html.parser') 
         chart = soup.find_all('table')[0]
-        songs = chart.find_all("tr")
-        for attribute in songs[1].find_all("td"): 
-            print(attribute.text)
+
+        print(str(chart.thead) + str(chart.tbody))
+        
+        return {"raw_data" : str(chart.thead) + str(chart.tbody) , "new_watermark": None}
+
+        
+
+
 
 
 
