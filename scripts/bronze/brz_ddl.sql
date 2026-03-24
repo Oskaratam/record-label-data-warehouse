@@ -107,10 +107,10 @@ CREATE TABLE bronze.kworb_chart_worldwide (
 	meta_is_proccessed BIT DEFAULT 0 
 )
 
-IF OBJECT_ID('bronze.kworb_chart_worldwide', 'U') IS NOT NULL
-	DROP TABLE bronze.kworb_chart_worldwide;
+IF OBJECT_ID('bronze.kworb_radio_chart', 'U') IS NOT NULL
+	DROP TABLE bronze.kworb_radio_chart;
 GO
-CREATE TABLE bronze.kworb_chart_worldwide (
+CREATE TABLE bronze.kworb_radio_chart (
 	page_key INT IDENTITY(1, 1) PRIMARY KEY,
 	raw_content NVARCHAR (MAX), -- Raw scraped html,
 	meta_ingested_at DATETIME2 DEFAULT SYSUTCDATETIME(),
