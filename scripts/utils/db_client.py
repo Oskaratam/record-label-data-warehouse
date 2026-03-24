@@ -64,7 +64,7 @@ class DatabaseClient:
             connection.close()
         
 
-    def get_watermark_value(self, source_system: str) -> str:
+    def get_watermark_value(self, source_system: str) -> str | None:
         connection : pyodbc.Connection = self._connect_to_db()
         watermark = ""
         control_table = self.TABLES["bronze_control_table"]
@@ -84,7 +84,7 @@ class DatabaseClient:
             print(f"Database ERROR during watermark retrieval: {e}")
         finally:
             connection.close()
-            return str(watermark[0]) if isinstance(watermark, pyodbc.Row) and len(watermark) > 0 else ""
+            return str(watermark[0]) if isinstance(watermark, pyodbc.Row) and len(watermark) > 0 else None
         
 
     def _load_json(self, watermark=""):

@@ -11,5 +11,7 @@ KWORB_RADIO_CHART_URL = "https://kworb.net/radio/"
 
 category_to_table_name_map = {
     "youtube_videos": "bronze.youtube_videos",
-    "youtube_playlists": "bronze.youtube_playlists"
+    "youtube_playlists": "bronze.youtube_playlists",
+    "worldwide_chart": "bronze.kworb_chart_worldwide",
+    "radio_chart": "bronze.kworb_radio_chart"
 }

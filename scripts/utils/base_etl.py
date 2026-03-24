@@ -15,6 +15,10 @@ class BaseEtl():
         self.source_system = source_system
         self.data_category = data_category
 
+    def print_error(self, metadata: dict):
+        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        print(f'Error occured while loading: {metadata['error_message']}')
+
     def run(self):
         watermark_value = self.database.get_watermark_value(self.source_system)
         data = {}
@@ -32,17 +36,19 @@ class BaseEtl():
                 self.database.load_to_bronze(data["raw_data"], self.source_system, self.data_category) 
                 self.database.load_to_control_table(data["metadata"], self.data_category)
                 return 
+            elif(data['metadata']['error_message'].startswith("Watermark Invalid")):
+                self.print_error(data['metadata'])
+                self.database.load_to_control_table(data['metadata'], self.data_category)
+                return
             else:
-                print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-                print(f'Error occured while loading: {data['metadata']['error_message']}')
+                self.print_error(data['metadata'])
                 self._load_tries_count += 1
                 self.database.load_to_control_table(data['metadata'], self.data_category)
                 if(self._load_tries_count < API_TRIAL_THRESHOLD):
                     print(f'Retrying the Load..... [{self._load_tries_count} / {API_TRIAL_THRESHOLD}]')
                     time.sleep(4)
                 else:
-                    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-                    print(f'Error occured while loading: {data['metadata']['error_message']}')
+                    self.print_error(data['metadata'])
                     print('Number of trials exceeded the allowed threshold')
                     return
 
@@ -58,6 +64,6 @@ class BaseEtl():
             return False 
 
     @with_metadata
-    def _get_data(self,  watermark: str) -> dict:
+    def _get_data(self,  watermark: str | None) -> dict:
         return {"raw_data" : [], "new_watermark": None}
     

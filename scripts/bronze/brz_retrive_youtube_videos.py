@@ -19,8 +19,11 @@ class YoutubeVideosEtl(BaseEtl):
         self.API_KEY = os.getenv("YOUTUBE_API_KEY")
     
     @with_metadata
-    def _get_data(self,  watermark: str):
-        playlist_videos = self._get_playlist_items(self._get_relevant_playlists(), watermark)
+    def _get_data(self,  watermark: str | None):
+        if watermark:
+            playlist_videos = self._get_playlist_items(self._get_relevant_playlists(), watermark)
+        else:
+            playlist_videos = self._get_playlist_items(self._get_relevant_playlists(), "")
         video_details = self._get_video_details(playlist_videos)
         freshest_date = sorted(video_details, key = lambda x: x.get('snippet', {}).get('publishedAt', ""))[-1]['snippet']['publishedAt']
         return {"raw_data" : video_details, "new_watermark": freshest_date}
